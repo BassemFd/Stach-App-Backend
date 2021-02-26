@@ -1,5 +1,7 @@
 var express = require('express');
 var router = express.Router();
+var uid2 = require('uid2')
+
 var UserModel = require('../models/users');
 
 /* GET users listing. */
@@ -19,9 +21,29 @@ router.get('/', function(req, res, next) {
   
   voir comment mettre en place google et facebook
 */
-router.post('/signUp', function(req, res, next) {
+router.post('/signUp', async function(req, res, next) {
   /* création du token et du status en plus des input rempli par le user */
-  
+
+  var newUser = new userModel({
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    phoneNumber: req.body.phoneNumber,
+    mail: req.body.mail,
+    password: req.body.password,
+    favorites: req.body.favorites,
+    status: "customer",
+    token: uid2(32),
+  });
+
+  let user = await newUser.save();
+
+  if (user.token != null) {
+    // Traitement de la réservation
+    res.json({ result: true, token : user.token });
+  } else {
+    res.json({ result: false});
+  }
+
   })
 
 /* route sign-in 
