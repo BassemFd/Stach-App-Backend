@@ -1,3 +1,9 @@
+/**
+ * Le Module que j'ai utilisé pour faire la validation
+ * NPM : www.npmjs.com/package/joi
+ * Site : https://joi.dev/api/?v=17.4.0
+ */
+
 // VALIDATION
 const Joi = require('joi');
 
