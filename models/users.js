@@ -1,22 +1,27 @@
 var mongoose = require('mongoose');
 
-var userSchema = mongoose.Schema({
-    lastName: {type: String, required: true},
-    firstName: {type: String, required: true},
-    phoneNumber: {type: String, required: true},
-    mail: {type: String, required: true, unique: true},
+var userSchema = mongoose.Schema(
+  {
+    lastName: { type: String, required: true },
+    firstName: { type: String, required: true },
+    phoneNumber: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
     token: String,
-    password: {type: String, required: true},
+    password: { type: String, required: true },
     hairType: String,
     haitLength: String,
     images: Array,
-    favorites: [ {type: mongoose.Schema.Types.ObjectId, ref: 'shops'} ],
+    favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'shops' }],
     status: String,
-    shopId: [ {type: mongoose.Schema.Types.ObjectId, ref: 'shops'} ],
+    shopId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'shops' }],
     isActive: Boolean,
-    comments: [ {type: mongoose.Schema.Types.ObjectId, ref: 'comments'} ],
-    appointments: [ {type: mongoose.Schema.Types.ObjectId, ref: 'appointments'} ]
-});
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'comments' }],
+    appointments: [
+      { type: mongoose.Schema.Types.ObjectId, ref: 'appointments' },
+    ],
+  },
+  { timestamps: true }
+);
 
 var UserModel = mongoose.model('users', userSchema);
 

@@ -7,11 +7,13 @@
     "test": "jest"
   },
   "dependencies": {
+    "bcrypt": "^5.0.0",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "ejs": "~2.6.1",
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
+    "joi": "^17.4.0",
     "mongoose": "^5.11.18",
     "morgan": "~1.9.1",
     "supertest": "^6.1.3",
