@@ -46,11 +46,8 @@ router.post('/search', async function(req, res, next) {
   // console.log("req.body.quoi", req.body.quoi)
   // console.log("quoi", quoi)
 
-  console.log("req.body.latitude", req.body.latitude)
-  console.log("req.body.longitude", req.body.longitude)
-
-  console.log("req.body.latitude", req.body.latitude)
-
+  // console.log("req.body.latitude", req.body.latitude)
+  // console.log("req.body.longitude", req.body.longitude)
 
   var shopsList = await ShopModel.find(
     {
@@ -72,8 +69,8 @@ router.post('/search', async function(req, res, next) {
   );
 
   // Filter with distance the result
-
-  let distanceMax = 10;
+  // Distance in miles
+  let distanceMax = 1.3;
   
     function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2)
   {
@@ -99,6 +96,8 @@ router.post('/search', async function(req, res, next) {
   for (let i = 0; i<shopsList.length; i++) {
     if (req.body.longitude != null && req.body.latitude != null ) {
     let distance = Math.floor(getDistanceFromLatLonInKm(latitude, longitude, shopsList[i].latitude, shopsList[i].longitude))
+    // Check how distance is checked
+    // console.log("index", i, " : ", distance)
     if (distance < distanceMax) {
       filteredDistanceShopsList.push(shopsList[i])
     }
