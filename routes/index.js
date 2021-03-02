@@ -36,7 +36,7 @@ router.post('/search', function(req, res, next) {
 
 });
 
-// route pour enregistrer les shops via postman
+// route pour enregistrer les shops via postman - NE PAS EFFACER LES CHAMPS COMMENTÉS //
 router.post('/addShop', async function(req, res, next) {
 
   var newShop = new ShopModel ({
@@ -44,7 +44,7 @@ router.post('/addShop', async function(req, res, next) {
     shopImages: [
       req.body.shopImage1, 
       req.body.shopImage2,
-      // req.body.shopImage3,
+      req.body.shopImage3,
       // req.body.shopImage4,
     ],
     shopAddress: req.body.shopAddress,
@@ -55,12 +55,12 @@ router.post('/addShop', async function(req, res, next) {
       req.body.shopFeatures1, 
       req.body.shopFeatures2, 
       req.body.shopFeatures3, 
-      //req.body.shopFeatures4,
+      // req.body.shopFeatures4,
     ],
     shopEmployees: [
       req.body.shopEmployee1, 
-      req.body.shopEmployee2, 
-      //req.body.shopEmployee3 
+      // req.body.shopEmployee2, 
+      // req.body.shopEmployee3 
     ],
     offers: [
       {type: req.body.offerName1, price: req.body.offerPrice1, duration: req.body.offerDuration1}, 
@@ -72,11 +72,11 @@ router.post('/addShop', async function(req, res, next) {
     ], 
     packages: [
       {type: req.body.packageName1, price: req.body.packagePrice1, duration: req.body.packageDuration1, description: req.body.packageDescription1},
-      // {type: req.body.packageName2, price: req.body.packagePrice2, duration: req.body.packageDuration2, description: req.body.packageDescription2},
+      {type: req.body.packageName2, price: req.body.packagePrice2, duration: req.body.packageDuration2, description: req.body.packageDescription2},
       // {type: req.body.packageName3, price: req.body.packagePrice3, duration: req.body.packageDuration3, description: req.body.packageDescription3}
     ],
     schedule: [
-      {dayOfTheWeek: 'Monday', openingHours: req.body.openingHoursMonday, closingHours: req.body.closingHoursMonday},
+      // {dayOfTheWeek: 'Monday', openingHours: req.body.openingHoursMonday, closingHours: req.body.closingHoursMonday},
       {dayOfTheWeek: 'Tuesday', openingHours: req.body.openingHoursTuesday, closingHours: req.body.closingHoursTuesday},
       {dayOfTheWeek: 'Wednesday', openingHours: req.body.openingHoursWednesday, closingHours: req.body.closingHoursWednesday},
       {dayOfTheWeek: 'Thursday', openingHours: req.body.openingHoursThursday, closingHours: req.body.closingHoursThursday},
@@ -85,6 +85,9 @@ router.post('/addShop', async function(req, res, next) {
       // {dayOfTheWeek: 'Sunday', openingHours: req.body.openingHoursSunday, closingHours: req.body.closingHoursSunday},
     ],
     atHome: req.body.atHome,
+    rating: req.body.rating,
+    latitude: req.body.latitude,
+    longitude: req.body.longitude,
   });
   
   await newShop.save();
@@ -93,10 +96,36 @@ router.post('/addShop', async function(req, res, next) {
   
   })
 
+  router.put('/addPriceFork', async function(req, res, next) {
 
+    var shop = await ShopModel.findOne(
+      {shopName: req.body.shopName}
+    )
 
+    var totalPrice = 0;
+    var numberOfOffer = 0;
+    for (let i=0; i<shop.offers.length; i++) {
+      totalPrice += shop.offers[i].price;
+      numberOfOffer ++
+    }
+    var averagePrice = totalPrice/numberOfOffer;
 
+    var priceFork;
+    if (averagePrice < 50) {
+      priceFork = 1
+    } else if (averagePrice < 70) {
+      priceFork = 2
+    } else {
+      priceFork = 3
+    }
 
+    await ShopModel.updateOne(
+      {shopName: req.body.shopName},
+      {priceFork: priceFork}
+    )
+
+    res.json({ result: true })
+  })
 
 
 module.exports = router;
