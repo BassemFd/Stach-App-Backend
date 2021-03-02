@@ -27,15 +27,13 @@ router.post('/signUp', async function (req, res, next) {
   // Validate the data before we make a user
   const { error } = signUpValidation(req.body);
   if (error) {
-    return res.status(400).json(error.details[0].message);
+    return res.json({ result: false, error: error.details[0].message });
   }
 
   // Checking if the user is already in the DB
   const emailIsExist = await UserModel.findOne({ email: req.body.email });
   if (emailIsExist) {
-    return res
-      .status(400)
-      .json({ result: false, message: "l'email existe déjà" });
+    return res.json({ result: false, emaiExist: "l'email existe déjà" });
   }
 
   // Hash passwords
@@ -83,14 +81,15 @@ router.post('/signIn', async function (req, res, next) {
   const { error } = signInValidation(req.body);
 
   if (error) {
-    return res.send(error.details[0].message);
+    result = false;
+    return res.json({ result, error: error.details[0].message });
   }
 
   // Checking if the email exists
   const user = await UserModel.findOne({ email: req.body.email });
   if (!user) {
     result = false;
-    return res.send({ result, message: "L'e-mail est introuvable" });
+    return res.json({ result, emailNotFound: "L'e-mail est introuvable" });
   }
 
   // Password is correct
@@ -98,7 +97,7 @@ router.post('/signIn', async function (req, res, next) {
 
   if (!validPass) {
     result = false;
-    return res.send({ result, message: 'Mot de passe invalide' });
+    return res.json({ result, invalidPassword: 'Mot de passe non associé' });
   } else {
     tokenSignIn = user.token;
     result = true;
