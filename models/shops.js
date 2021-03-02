@@ -23,6 +23,8 @@ var shopSchema = mongoose.Schema({
     shopName: {type: String, required: true},
     shopImages: Array,
     shopAddress: {type: String, required: true},
+    latitude: Number,
+    longitude: Number,
     shopPhone: {type: String, required: true},
     shopMail: {type: String, required: true, unique: true},
     shopDescription: {type: String, required: true},
