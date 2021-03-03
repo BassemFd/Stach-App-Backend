@@ -280,6 +280,7 @@ router.post('/addappointment', async function(req, res, next) {
     endDate: req.body.endDate,
     chosenPayment: req.body.chosenPayment,
     appointmentStatus: req.body.appointmentStatus,
+    shopId: req.body.shop_id,
   });
 
   var saveAppointment = await newAppointment.save();
