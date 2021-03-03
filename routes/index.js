@@ -42,9 +42,12 @@ router.post('/search', async function(req, res, next) {
   
   // We need to send the date and hour chosen by the user
   // First converting date to day of the week to check if the shop is opened
-  req.body.data.date ? 
-  weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][new Date(req.body.data.date).getDay()] 
-  : null;
+  
+  if (req.body.data.date != null){
+    let dateGoodFormat = req.body.data.date.split('-')[2] + "-" + req.body.data.date.split('-')[1] + "-" + req.body.data.date.split('-')[0];
+    weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][new Date(dateGoodFormat).getDay()];
+  } 
+  
   // Then if hour chosen convert it to minutes
   req.body.data.hour ? 
   MaxMinutes = (+((req.body.data.hour).split(':')[0]) * 60 + (+(req.body.data.hour).split(':')[1]) ) : null;
@@ -132,7 +135,7 @@ router.post('/search', async function(req, res, next) {
 
   // Filter with distance the result of filteredAppointmentsShopsList
   // Distance in miles
-  let distanceMax = 1.3;
+  let distanceMax = 4;
   
     function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2)
   {
