@@ -16,6 +16,8 @@ utiliser pour page accueil, filtres salon (map et liste)
 */
 router.post('/search', async function(req, res, next) {
 
+  console.log("req.body.data", req.body.data)
+
   let type = {$exists: true};
   let latitude = {$exists: true}
   let longitude = {$exists: true}
@@ -29,30 +31,33 @@ router.post('/search', async function(req, res, next) {
   let rating = 0;
   let priceFork = 0;
 
-  req.body.type === 'chez toi' ? type = true : null;
-  req.body.rating ? rating = req.body.rating : null;
-  req.body.priceFork ? priceFork = req.body.priceFork : null;
-  req.body.quoi ? quoi = req.body.quoi : null;
-  req.body.package ? package = req.body.package : null;
-  req.body.picto ? picto = req.body.picto : null;
-  req.body.latitude ? latitude = req.body.latitude : null;
-  req.body.longitude ? longitude = req.body.longitude : null;
+  req.body.data.salonOrHome === 'chez toi' ? type = true : null;
+  req.body.data.rating ? rating = req.body.data.rating : null;
+  req.body.data.priceFork ? priceFork = req.body.data.priceFork : null;
+  req.body.data.offer ? quoi = req.body.data.offer : null;
+  req.body.data.experience ? package = req.body.data.experience : null;
+  req.body.data.service ? picto = req.body.data.service : null;
+  req.body.data.latitude ? latitude = req.body.data.latitude : null;
+  req.body.data.longitude ? longitude = req.body.data.longitude : null;
   
   // We need to send the date and hour chosen by the user
   // First converting date to day of the week to check if the shop is opened
-  req.body.date ? 
-  weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][new Date(req.body.date).getDay()] 
-  : null;
+  
+  if (req.body.data.date != null){
+    let dateGoodFormat = req.body.data.date.split('-')[2] + "-" + req.body.data.date.split('-')[1] + "-" + req.body.data.date.split('-')[0];
+    weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][new Date(dateGoodFormat).getDay()];
+  } 
+  
   // Then if hour chosen convert it to minutes
-  req.body.hour ? 
-  MaxMinutes = (+((req.body.hour).split(':')[0]) * 60 + (+(req.body.hour).split(':')[1]) ) : null;
+  req.body.data.hour ? 
+  MaxMinutes = (+((req.body.data.hour).split(':')[0]) * 60 + (+(req.body.data.hour).split(':')[1]) ) : null;
 
-  req.body.hour ? 
-  MinMinutes = (+((req.body.hour).split(':')[0]) * 60 + (+(req.body.hour).split(':')[1]) ) : null;
+  req.body.data.hour ? 
+  MinMinutes = (+((req.body.data.hour).split(':')[0]) * 60 + (+(req.body.data.hour).split(':')[1]) ) : null;
 
   // if date is chosen convert it to UTC if needed
-  req.body.completeDate ?
-  completeDate = new Date(req.body.completeDate) : null;
+  req.body.data.completeDate ?
+  completeDate = new Date(req.body.data.completeDate) : null;
 
   // console.log("minutes", MaxMinutes)
   // console.log("dateName", weekday);
@@ -126,11 +131,11 @@ router.post('/search', async function(req, res, next) {
   }
   
   
-  console.log("filtre par appointments", filteredAppointmentsShopsList)
+  // console.log("filtre par appointments", filteredAppointmentsShopsList)
 
-  // Filter with distance the result
+  // Filter with distance the result of filteredAppointmentsShopsList
   // Distance in miles
-  let distanceMax = 1.3;
+  let distanceMax = 4;
   
     function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2)
   {
@@ -154,7 +159,7 @@ router.post('/search', async function(req, res, next) {
   let filteredDistanceShopsList = []
 
   for (let i = 0; i<filteredAppointmentsShopsList.length; i++) {
-    if (req.body.longitude != null && req.body.latitude != null ) {
+    if (req.body.data.longitude != null && req.body.data.latitude != null ) {
     let distance = Math.floor(getDistanceFromLatLonInKm(latitude, longitude, filteredAppointmentsShopsList[i].latitude, filteredAppointmentsShopsList[i].longitude))
     // Check how distance is checked
     // console.log("index", i, " : ", distance)
@@ -165,6 +170,8 @@ router.post('/search', async function(req, res, next) {
     filteredDistanceShopsList.push(filteredAppointmentsShopsList[i])
   }
 }
+
+console.log("filtre par appointments et date", filteredDistanceShopsList)
   res.json({filteredDistanceShopsList})
 });
 
@@ -273,6 +280,7 @@ router.post('/addappointment', async function(req, res, next) {
     endDate: req.body.endDate,
     chosenPayment: req.body.chosenPayment,
     appointmentStatus: req.body.appointmentStatus,
+    shopId: req.body.shop_id,
   });
 
   var saveAppointment = await newAppointment.save();
