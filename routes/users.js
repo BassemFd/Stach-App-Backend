@@ -106,10 +106,7 @@ router.post('/signIn', async function (req, res, next) {
   res.json({ result, user, tokenSignIn });
 });
 
-/* route de validation de la base de données 
-  -> reducer stockant toutes les infos du rdv choisis (reducer créé au moment de la validation du rdv sur la page détail coiffeur)  
-*/
-router.post('bookAppointment', function (req, res, next) {});
+
 
 /* route stripe */
 

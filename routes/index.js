@@ -259,5 +259,36 @@ router.post('/addShop', async function(req, res, next) {
     res.json({ result: true })
   })
 
+/* route de validation de la base de données 
+  -> reducer stockant toutes les infos du rdv choisis (reducer créé au moment de la validation du rdv sur la page détail coiffeur)  
+*/
+router.post('/addappointment', async function(req, res, next) {
+
+  var newAppointment = new AppointmentModel({
+    chosenOffer: req.body.chosenOffer,
+    chosenPrice: req.body.chosenPrice,
+    chosenEmployee: req.body.chosenEmployee,
+    chosenPackage: req.body.chosenPackage,
+    startDate: req.body.startDate,
+    endDate: req.body.endDate,
+    chosenPayment: req.body.chosenPayment,
+    appointmentStatus: req.body.appointmentStatus,
+  });
+
+  var saveAppointment = await newAppointment.save();
+
+  await ShopModel.updateOne(
+    {_id: req.body.shop_id},
+    {$push: {appointments: saveAppointment._id}}
+  )
+
+  await UserModel.updateOne(
+    {_id: req.body.user_id},
+    {$push: {appointments: saveAppointment._id}}
+  )
+
+  res.json({ result: true })
+})
+
 
 module.exports = router;
