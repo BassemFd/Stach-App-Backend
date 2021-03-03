@@ -19,7 +19,10 @@ router.post('/search', async function(req, res, next) {
   let type = {$exists: true};
   let latitude = {$exists: true}
   let longitude = {$exists: true}
-  let quand = {$exists: true}
+  let weekday = {$exists: true}
+  let MaxMinutes = 1439;
+  let MinMinutes = 0;
+  let completeDate = null;
   let quoi = {$exists: true}
   let package = {$exists: true}
   let picto = {$exists: true}
@@ -35,8 +38,25 @@ router.post('/search', async function(req, res, next) {
   req.body.latitude ? latitude = req.body.latitude : null;
   req.body.longitude ? longitude = req.body.longitude : null;
   
-  req.body.quand ? quand = req.body.quand : null;
-  
+  // We need to send the date and hour chosen by the user
+  // First converting date to day of the week to check if the shop is opened
+  req.body.date ? 
+  weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][new Date(req.body.date).getDay()] 
+  : null;
+  // Then if hour chosen convert it to minutes
+  req.body.hour ? 
+  MaxMinutes = (+((req.body.hour).split(':')[0]) * 60 + (+(req.body.hour).split(':')[1]) ) : null;
+
+  req.body.hour ? 
+  MinMinutes = (+((req.body.hour).split(':')[0]) * 60 + (+(req.body.hour).split(':')[1]) ) : null;
+
+  // if date is chosen convert it to UTC if needed
+  req.body.completeDate ?
+  completeDate = new Date(req.body.completeDate) : null;
+
+  // console.log("minutes", MaxMinutes)
+  // console.log("dateName", weekday);
+
   // console.log("req.body.type", req.body.type)
   // console.log("type", type)
 
@@ -65,8 +85,48 @@ router.post('/search', async function(req, res, next) {
       rating: {$gt:rating},
       priceFork: {$gt:priceFork},
       shopFeatures: picto,
+
+      schedule:{ $elemMatch:{dayOfTheWeek: weekday, openingHours: {$lte: MaxMinutes}, closingHours: {$gte: MinMinutes}}},
+      
     }
-  );
+  ).populate('appointments').exec()
+
+  // We obtain all shops that are open on opening dates and hours plus all other chosen parameters, we need to filter first by already taken appointments and then by distance 
+
+  //Filter with nested appointments and number of employees
+  let filteredAppointmentsShopsList = []
+  for (let i = 0; i < shopsList.length; i++) {
+
+    if (completeDate != null)
+
+    {let numberOfEmployees = null;
+    let counterOfAppointments = null;
+    numberOfEmployees = shopsList[i].shopEmployees.length;
+    for (let j =0 ; j < shopsList[i].appointments.length; j++){
+      // console.log("completeDate", new Date(completeDate).getTime())
+      // console.log("shopappointmentDate", shopsList[i].appointments[j].startDate.getTime())
+      if (
+          completeDate > shopsList[i].appointments[j].startDate
+          && completeDate < shopsList[i].appointments[j].endDate
+         ) 
+      {
+        counterOfAppointments = counterOfAppointments +1;
+      }
+    }
+    
+    // console.log("couter of appointments", counterOfAppointments);
+    // console.log("number of employee", numberOfEmployees)
+    if (counterOfAppointments < numberOfEmployees) {
+      filteredAppointmentsShopsList.push(shopsList[i])
+    }}
+    else {
+      filteredAppointmentsShopsList.push(shopsList[i])
+    }
+
+  }
+  
+  
+  console.log("filtre par appointments", filteredAppointmentsShopsList)
 
   // Filter with distance the result
   // Distance in miles
@@ -93,22 +153,18 @@ router.post('/search', async function(req, res, next) {
 
   let filteredDistanceShopsList = []
 
-  for (let i = 0; i<shopsList.length; i++) {
+  for (let i = 0; i<filteredAppointmentsShopsList.length; i++) {
     if (req.body.longitude != null && req.body.latitude != null ) {
-    let distance = Math.floor(getDistanceFromLatLonInKm(latitude, longitude, shopsList[i].latitude, shopsList[i].longitude))
+    let distance = Math.floor(getDistanceFromLatLonInKm(latitude, longitude, filteredAppointmentsShopsList[i].latitude, filteredAppointmentsShopsList[i].longitude))
     // Check how distance is checked
     // console.log("index", i, " : ", distance)
     if (distance < distanceMax) {
-      filteredDistanceShopsList.push(shopsList[i])
+      filteredDistanceShopsList.push(filteredAppointmentsShopsList[i])
     }
   } else {
-    filteredDistanceShopsList.push(shopsList[i])
+    filteredDistanceShopsList.push(filteredAppointmentsShopsList[i])
   }
 }
-
-
-
-
   res.json({filteredDistanceShopsList})
 });
 
