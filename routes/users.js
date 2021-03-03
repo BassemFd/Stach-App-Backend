@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const uid2 = require('uid2');
 const { signUpValidation, signInValidation } = require('../validation');
 const UserModel = require('../models/users');
+const AppointmentModel = require('../models/appointments');
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
@@ -106,8 +107,6 @@ router.post('/signIn', async function (req, res, next) {
   res.json({ result, user, tokenSignIn });
 });
 
-
-
 /* route stripe */
 
 /* route à l'entrée de la page 'communiquer avec mon coiffeur' accessible juste après la validation ET depuis la page rdv à venir, pensez à ajouter un bouton ignorer */
@@ -121,14 +120,25 @@ router.post('/myDetails', function (req, res, next) {
 });
 
 /* route profil: depuis la validation de la com avec coiffeur et depuis le drawer si connecté*/
-router.get('myProfile', function (req, res, next) {
+router.get('/myProfile/:token', async function (req, res, next) {
   // récupère firstname, lastname, loyaltyPoints, rdv futurs, rdv passés
+  const tokenUser = req.params.token;
+
+  try {
+    const user = await UserModel.findOne({ token: tokenUser })
+      .populate('appointments')
+      .exec();
+    res.json({ result: true, user, appointments: user.appointments });
+  } catch (error) {
+    res.json({ result: false, error });
+  }
+
   // rdv passés : il y a un bouton qui amène vers comment
   // rdv futurs : il y a un bouton qui amène vers myDetails
 });
 
 /* route en post depuis le profil : un bouton sur chaque rdv passés, ouvre un overlay avec un input pour le commentaire, un input pour la note */
-router.post('comment', function (req, res, next) {
+router.post('/comment', function (req, res, next) {
   // récupère le token du user, l'id du salon de coiffure, le comment et la note
   // une fois le commentaire écrit, le bouton disparait
 });
