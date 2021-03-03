@@ -5,6 +5,7 @@ const uid2 = require('uid2');
 const { signUpValidation, signInValidation } = require('../validation');
 const UserModel = require('../models/users');
 const AppointmentModel = require('../models/appointments');
+const ShopModel = require('../models/shops');
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
@@ -120,9 +121,64 @@ router.post('/myDetails', function (req, res, next) {
 });
 
 /* route profil: depuis la validation de la com avec coiffeur et depuis le drawer si connecté*/
+router.get('/myProfileTest/:token', async function (req, res, next) {
+  const tokenUser = req.params.token;
+  const user = await UserModel.findOne({ token: tokenUser });
+  console.log(user.appointments, 'App');
+
+  const appointIds = [];
+  user.appointments.forEach((userAppoint) => {
+    appointIds.push(userAppoint);
+  });
+
+  // {
+  //     appointments: {
+  //       $elemMatch: { _id: '603f7dba67afbb67e80642e3' },
+  //     },
+  //   }
+
+  try {
+    // query.where('comment').elemMatch({ author: 'autobot', votes: { $gte: 5 } });
+    const shops = await ShopModel.aggregate();
+    shops.match({
+      appointments: { _id: { $in: appointIds } },
+    });
+    let data = await shops.exec();
+
+    var aggregate = UserModel.aggregate();
+    // aggregate.group({ _id: '$city' });
+
+    console.log(data, 'data shops');
+    res.send({ result: true, shops });
+  } catch (error) {
+    res.json({ result: false, error });
+  }
+});
 router.get('/myProfile/:token', async function (req, res, next) {
   // récupère firstname, lastname, loyaltyPoints, rdv futurs, rdv passés
   const tokenUser = req.params.token;
+
+  // Get all shops
+  const shops = await ShopModel.find();
+  console.log(shops);
+  // try {
+  //   let shopAppointments = shops.forEach((shop) => {
+  //     console.log(shop.appointments, 'Appoint');
+  //   });
+  // } catch (error) {
+  //   console.log(error);
+  // }
+
+  // try {
+  //   const shops = await ShopModel.findOne({
+  //     appointments: { _id: '603f7dba67afbb67e80642e3' },
+  //   });
+
+  //   console.log(shops);
+  //   res.send({ result: true, shops });
+  // } catch (error) {
+  //   res.json({ result: false, error });
+  // }
 
   try {
     const user = await UserModel.findOne({ token: tokenUser })
