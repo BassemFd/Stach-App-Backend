@@ -19,7 +19,8 @@ router.post('/search', async function(req, res, next) {
   let type = {$exists: true};
   let latitude = {$exists: true}
   let longitude = {$exists: true}
-  let quand = {$exists: true}
+  let weekday = {$exists: true}
+  let hour = {$exists: true}
   let quoi = {$exists: true}
   let package = {$exists: true}
   let picto = {$exists: true}
@@ -35,8 +36,17 @@ router.post('/search', async function(req, res, next) {
   req.body.latitude ? latitude = req.body.latitude : null;
   req.body.longitude ? longitude = req.body.longitude : null;
   
-  req.body.quand ? quand = req.body.quand : null;
+
+  // We need to send the date and hour chosen by the user
+  // First converting date to day of the week to check if the shop is opened
+  req.body.date ? 
+  weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][new Date(req.body.date).getDay()] 
+  : null;
+
+  req.body.hour ? hour = req.body.hour : null;
   
+  // console.log("dateName", weekday);
+
   // console.log("req.body.type", req.body.type)
   // console.log("type", type)
 
@@ -65,8 +75,13 @@ router.post('/search', async function(req, res, next) {
       rating: {$gt:rating},
       priceFork: {$gt:priceFork},
       shopFeatures: picto,
+      schedule:{ $elemMatch:
+        {
+          dayOfTheWeek: weekday,
+        }
+      }, 
     }
-  );
+  ).populate('appointments').exec()
 
   // Filter with distance the result
   // Distance in miles
@@ -105,6 +120,8 @@ router.post('/search', async function(req, res, next) {
     filteredDistanceShopsList.push(shopsList[i])
   }
 }
+
+
 
 
 
