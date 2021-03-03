@@ -222,7 +222,12 @@ router.post('/addappointment', async function(req, res, next) {
   var saveAppointment = await newAppointment.save();
 
   await ShopModel.updateOne(
-    {_id: req.body._id},
+    {_id: req.body.shop_id},
+    {$push: {appointments: saveAppointment._id}}
+  )
+
+  await UserModel.updateOne(
+    {_id: req.body.user_id},
     {$push: {appointments: saveAppointment._id}}
   )
 
