@@ -87,8 +87,8 @@ router.post('/search', async function(req, res, next) {
         }
       }, 
       atHome: type,
-      rating: {$gt:rating},
-      priceFork: {$gt:priceFork},
+      rating: {$gte:rating},
+      priceFork: {$gte:priceFork},
       shopFeatures: picto,
 
       schedule:{ $elemMatch:{dayOfTheWeek: weekday, openingHours: {$lte: MaxMinutes}, closingHours: {$gte: MinMinutes}}},

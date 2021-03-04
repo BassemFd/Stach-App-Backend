@@ -5,6 +5,7 @@ const uid2 = require('uid2');
 const { signUpValidation, signInValidation } = require('../validation');
 const UserModel = require('../models/users');
 const CommentModel = require('../models/comments');
+const AppointmentModel = require('../models/appointments');
 const ShopModel = require('../models/shops');
 
 /* GET users listing. */
@@ -108,8 +109,6 @@ router.post('/signIn', async function (req, res, next) {
   res.json({ result, user, tokenSignIn });
 });
 
-
-
 /* route stripe */
 
 /* route à l'entrée de la page 'communiquer avec mon coiffeur' accessible juste après la validation ET depuis la page rdv à venir, pensez à ajouter un bouton ignorer */
@@ -123,10 +122,39 @@ router.post('/myDetails', function (req, res, next) {
 });
 
 /* route profil: depuis la validation de la com avec coiffeur et depuis le drawer si connecté*/
-router.get('/myProfile', function (req, res, next) {
+router.get('/myProfile/:token', async function (req, res, next) {
   // récupère firstname, lastname, loyaltyPoints, rdv futurs, rdv passés
-  // rdv passés : il y a un bouton qui amène vers comment
   // rdv futurs : il y a un bouton qui amène vers myDetails
+  // rdv passés : il y a un bouton qui amène vers comment
+
+  const tokenUser = req.params.token;
+  const user = await UserModel.findOne({ token: tokenUser })
+    .populate('appointments')
+    .exec();
+
+  const appointIds = [];
+  user.appointments.forEach((userAppoint) => {
+    appointIds.push(userAppoint._id);
+  });
+
+  try {
+    // Get all appointments by user
+    const appointments = await AppointmentModel.find({
+      _id: { $in: appointIds },
+    });
+
+    // Get all shopsId by user
+    const shopsIds = [];
+    appointments.forEach((appointment) => {
+      shopsIds.push(appointment.shopId);
+    });
+
+    const shops = await ShopModel.find({ _id: { $in: shopsIds } });
+
+    res.send({ result: true, appointments, user, shopsIds, shops });
+  } catch (error) {
+    res.json({ result: false, error });
+  }
 });
 
 /* route en post depuis le profil : un bouton sur chaque rdv passés, ouvre un overlay avec un input pour le commentaire, un input pour la note */
