@@ -4,6 +4,8 @@ const bcrypt = require('bcrypt');
 const uid2 = require('uid2');
 const { signUpValidation, signInValidation } = require('../validation');
 const UserModel = require('../models/users');
+const CommentModel = require('../models/comments');
+const ShopModel = require('../models/shops');
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
@@ -121,16 +123,46 @@ router.post('/myDetails', function (req, res, next) {
 });
 
 /* route profil: depuis la validation de la com avec coiffeur et depuis le drawer si connecté*/
-router.get('myProfile', function (req, res, next) {
+router.get('/myProfile', function (req, res, next) {
   // récupère firstname, lastname, loyaltyPoints, rdv futurs, rdv passés
   // rdv passés : il y a un bouton qui amène vers comment
   // rdv futurs : il y a un bouton qui amène vers myDetails
 });
 
 /* route en post depuis le profil : un bouton sur chaque rdv passés, ouvre un overlay avec un input pour le commentaire, un input pour la note */
-router.post('comment', function (req, res, next) {
-  // récupère le token du user, l'id du salon de coiffure, le comment et la note
-  // une fois le commentaire écrit, le bouton disparait
+router.put('/addcomment', async function (req, res, next) {
+
+  var shop = await ShopModel.findById(req.body.shop_id);
+
+  var newComment = new CommentModel({
+    comment: req.body.comment,
+    rating: +req.body.rating,
+    commentDate: new Date(),
+  })
+
+  var saveComment = await newComment.save();
+
+  await UserModel.updateOne(
+    {token : req.body.token},
+    {$push: {comments: saveComment._id}}
+  )
+  
+  await ShopModel.updateOne(
+    {_id: req.body.shop_id},
+    {$push: {comments: saveComment._id}}
+  )
+
+  var newRating = (+req.body.rating + (shop.rating*shop.comments.length))/(shop.comments.length+1); 
+
+  console.log(newRating)
+
+  await ShopModel.updateOne(
+    {_id: req.body.shop_id},
+    {rating: newRating}
+  )
+  
+  res.json({ result: true })
+
 });
 
 module.exports = router;
