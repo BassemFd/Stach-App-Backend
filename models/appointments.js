@@ -1,14 +1,15 @@
 var mongoose = require('mongoose');
 
 var appointmentSchema = mongoose.Schema({
-    chosenOffer: String,
-    chosenPrice: Number,
-    chosenEmployee: String,
-    chosenPackage: String,
-    startDate: Date,
-    endDate: Date,
-    chosenPayment: String,
-    appointmentStatus: String,
+  chosenOffer: String,
+  chosenPrice: Number,
+  chosenEmployee: String,
+  chosenPackage: String,
+  startDate: Date,
+  endDate: Date,
+  chosenPayment: String,
+  appointmentStatus: String,
+  shopId: { type: mongoose.Schema.Types.ObjectId, ref: 'shops' },
 });
 
 var AppointmentModel = mongoose.model('appointments', appointmentSchema);
