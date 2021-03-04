@@ -121,76 +121,39 @@ router.post('/myDetails', function (req, res, next) {
 });
 
 /* route profil: depuis la validation de la com avec coiffeur et depuis le drawer si connecté*/
-router.get('/myProfileTest/:token', async function (req, res, next) {
+router.get('/myProfile/:token', async function (req, res, next) {
+  // récupère firstname, lastname, loyaltyPoints, rdv futurs, rdv passés
+  // rdv futurs : il y a un bouton qui amène vers myDetails
+  // rdv passés : il y a un bouton qui amène vers comment
+
   const tokenUser = req.params.token;
-  const user = await UserModel.findOne({ token: tokenUser });
-  console.log(user.appointments, 'App');
+  const user = await UserModel.findOne({ token: tokenUser })
+    .populate('appointments')
+    .exec();
 
   const appointIds = [];
   user.appointments.forEach((userAppoint) => {
-    appointIds.push(userAppoint);
+    appointIds.push(userAppoint._id);
   });
 
-  // {
-  //     appointments: {
-  //       $elemMatch: { _id: '603f7dba67afbb67e80642e3' },
-  //     },
-  //   }
-
   try {
-    // query.where('comment').elemMatch({ author: 'autobot', votes: { $gte: 5 } });
-    const shops = await ShopModel.aggregate();
-    shops.match({
-      appointments: { _id: { $in: appointIds } },
+    // Get all appointments by user
+    const appointments = await AppointmentModel.find({
+      _id: { $in: appointIds },
     });
-    let data = await shops.exec();
 
-    var aggregate = UserModel.aggregate();
-    // aggregate.group({ _id: '$city' });
+    // Get all shopsId by user
+    const shopsIds = [];
+    appointments.forEach((appointment) => {
+      shopsIds.push(appointment.shopId);
+    });
 
-    console.log(data, 'data shops');
-    res.send({ result: true, shops });
+    const shops = await ShopModel.find({ _id: { $in: shopsIds } });
+
+    res.send({ result: true, appointments, user, shopsIds, shops });
   } catch (error) {
     res.json({ result: false, error });
   }
-});
-router.get('/myProfile/:token', async function (req, res, next) {
-  // récupère firstname, lastname, loyaltyPoints, rdv futurs, rdv passés
-  const tokenUser = req.params.token;
-
-  // Get all shops
-  const shops = await ShopModel.find();
-  console.log(shops);
-  // try {
-  //   let shopAppointments = shops.forEach((shop) => {
-  //     console.log(shop.appointments, 'Appoint');
-  //   });
-  // } catch (error) {
-  //   console.log(error);
-  // }
-
-  // try {
-  //   const shops = await ShopModel.findOne({
-  //     appointments: { _id: '603f7dba67afbb67e80642e3' },
-  //   });
-
-  //   console.log(shops);
-  //   res.send({ result: true, shops });
-  // } catch (error) {
-  //   res.json({ result: false, error });
-  // }
-
-  try {
-    const user = await UserModel.findOne({ token: tokenUser })
-      .populate('appointments')
-      .exec();
-    res.json({ result: true, user, appointments: user.appointments });
-  } catch (error) {
-    res.json({ result: false, error });
-  }
-
-  // rdv passés : il y a un bouton qui amène vers comment
-  // rdv futurs : il y a un bouton qui amène vers myDetails
 });
 
 /* route en post depuis le profil : un bouton sur chaque rdv passés, ouvre un overlay avec un input pour le commentaire, un input pour la note */
