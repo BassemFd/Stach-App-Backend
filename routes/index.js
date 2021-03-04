@@ -281,6 +281,7 @@ router.post('/addappointment', async function(req, res, next) {
     chosenPayment: req.body.chosenPayment,
     appointmentStatus: req.body.appointmentStatus,
     shopId: req.body.shop_id,
+    commentExists: false,
   });
 
   var saveAppointment = await newAppointment.save();

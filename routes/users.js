@@ -187,6 +187,11 @@ router.put('/addcomment', async function (req, res, next) {
     {rating: newRating}
   )
   
+  await AppointmentModel.updateOne(
+    {_id: req.body.appointmentId},
+    {commentExists: true}
+  )
+
   res.json({ result: true, comment : saveComment })
 
 });
