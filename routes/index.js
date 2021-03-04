@@ -87,14 +87,14 @@ router.post('/search', async function(req, res, next) {
         }
       }, 
       atHome: type,
-      rating: {$gt:rating},
-      priceFork: {$gt:priceFork},
+      rating: {$gte:rating},
+      priceFork: {$gte:priceFork},
       shopFeatures: picto,
 
       schedule:{ $elemMatch:{dayOfTheWeek: weekday, openingHours: {$lte: MaxMinutes}, closingHours: {$gte: MinMinutes}}},
       
     }
-  ).populate('appointments').exec()
+  ).populate('appointments').populate('comments').exec()
 
   // We obtain all shops that are open on opening dates and hours plus all other chosen parameters, we need to filter first by already taken appointments and then by distance 
 
