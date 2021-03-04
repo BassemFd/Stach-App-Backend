@@ -42,7 +42,6 @@ router.post('/signUp', async function (req, res, next) {
   const cost = 10;
   const hashedPassword = bcrypt.hashSync(req.body.password, cost);
 
-  let token = '';
   const newUser = new UserModel({
     firstName: req.body.firstName,
     lastName: req.body.lastName,
@@ -57,7 +56,7 @@ router.post('/signUp', async function (req, res, next) {
   try {
     const savedUser = await newUser.save();
     console.log(savedUser);
-    res.json({ result: true, savedUser });
+    res.json({ result: true, savedUser, token: savedUser.token });
   } catch (error) {
     console.log(error);
     res.json({ result: false, error });
@@ -83,15 +82,16 @@ router.post('/signIn', async function (req, res, next) {
   const { error } = signInValidation(req.body);
 
   if (error) {
-    result = false;
-    return res.json({ result, error: error.details[0].message });
+    return res.json({ result: false, error: error.details[0].message });
   }
 
   // Checking if the email exists
   const user = await UserModel.findOne({ email: req.body.email });
   if (!user) {
-    result = false;
-    return res.json({ result, emailNotFound: "L'e-mail est introuvable" });
+    return res.json({
+      result: false,
+      emailNotFound: "L'e-mail est introuvable",
+    });
   }
 
   // Password is correct
@@ -99,13 +99,13 @@ router.post('/signIn', async function (req, res, next) {
 
   if (!validPass) {
     result = false;
-    return res.json({ result, invalidPassword: 'Mot de passe non associé' });
+    return res.json({
+      result: false,
+      invalidPassword: 'Mot de passe non associé',
+    });
   } else {
-    tokenSignIn = user.token;
-    result = true;
+    res.json({ result: true, user, token: user.token });
   }
-
-  res.json({ result, user, tokenSignIn });
 });
 
 /* route stripe */
