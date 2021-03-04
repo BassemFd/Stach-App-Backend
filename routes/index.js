@@ -299,5 +299,14 @@ router.post('/addappointment', async function(req, res, next) {
   res.json({ result: true })
 })
 
+router.get('/shop/:id', async function(req, res, next) {
+
+  var shop = await ShopModel.findById(req.params.id).populate('appointments').populate('comments').exec();
+  console.log(shop);
+
+  res.json({ result: true, shop: shop });
+
+})
+
 
 module.exports = router;
