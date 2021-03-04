@@ -281,6 +281,7 @@ router.post('/addappointment', async function(req, res, next) {
     chosenPayment: req.body.chosenPayment,
     appointmentStatus: req.body.appointmentStatus,
     shopId: req.body.shop_id,
+    commentExists: false,
   });
 
   var saveAppointment = await newAppointment.save();
@@ -296,6 +297,15 @@ router.post('/addappointment', async function(req, res, next) {
   )
 
   res.json({ result: true })
+})
+
+router.get('/shop/:id', async function(req, res, next) {
+
+  var shop = await ShopModel.findById(req.params.id).populate('appointments').populate('comments').exec();
+  console.log(shop);
+
+  res.json({ result: true, shop: shop });
+
 })
 
 

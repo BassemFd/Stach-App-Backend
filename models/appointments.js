@@ -10,6 +10,7 @@ var appointmentSchema = mongoose.Schema({
   chosenPayment: String,
   appointmentStatus: String,
   shopId: { type: mongoose.Schema.Types.ObjectId, ref: 'shops' },
+  commentExists: Boolean,
 });
 
 var AppointmentModel = mongoose.model('appointments', appointmentSchema);

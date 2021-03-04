@@ -182,14 +182,17 @@ router.put('/addcomment', async function (req, res, next) {
 
   var newRating = (+req.body.rating + (shop.rating*shop.comments.length))/(shop.comments.length+1); 
 
-  console.log(newRating)
-
   await ShopModel.updateOne(
     {_id: req.body.shop_id},
     {rating: newRating}
   )
   
-  res.json({ result: true })
+  await AppointmentModel.updateOne(
+    {_id: req.body.appointmentId},
+    {commentExists: true}
+  )
+
+  res.json({ result: true, comment : saveComment })
 
 });
 
