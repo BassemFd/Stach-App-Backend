@@ -117,8 +117,13 @@ router.get('/myDetails', function (req, res, next) {
 });
 
 /* route au bouton validation de la page 'communiquer avec mon coiffeur, envoie les infos au coiffeur. il y a un bouton ignore qui n'envoie rien. la validation renvoie vers la page profil*/
-router.post('/myDetails', function (req, res, next) {
-  // enregistrement via le token du user des modif sur la page de communication avec le coiffeur du hairType, hairLength,
+router.put('/myDetails', async function (req, res, next) {
+  await UserModel.updateOne(
+    {token : req.body.token},
+    {gender: req.body.gender, hairType: req.body.hairType, hairLength: req.body.hairLength}
+  );
+
+  res.json({ result: true });
 });
 
 /* route profil: depuis la validation de la com avec coiffeur et depuis le drawer si connecté*/

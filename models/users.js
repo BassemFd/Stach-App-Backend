@@ -9,7 +9,7 @@ var userSchema = mongoose.Schema(
     token: String,
     password: { type: String, required: true },
     hairType: String,
-    haitLength: String,
+    hairLength: String,
     images: Array,
     favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'shops' }],
     status: String,
