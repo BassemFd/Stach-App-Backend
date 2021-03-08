@@ -109,6 +109,45 @@ router.post('/signIn', async function (req, res, next) {
   }
 });
 
+// Get shops by id TEST
+// router.get('/shopsById/:id', async (req, res) => {
+//   try {
+//     const shops = await ShopModel.findById(req.params.id);
+//     res.json({ result: true, shops });
+//   } catch (error) {
+//     console.log(error);
+//     res.json({ result: false, error });
+//   }
+// });
+
+// Delete Appointments IN SHOP MODEL TEST
+// router.delete('/delete-appoint/:idShop/:idAppoint', async (req, res) => {
+//   const idShop = req.params.idShop;
+//   const shop = await ShopModel.findOne({ _id: idShop });
+//   const appoints = shop.appointments;
+
+//   const removedAppoint = await appoints.remove({
+//     _id: req.params.idAppoint,
+//   });
+//   await shop.save();
+
+//   res.json({ removedAppoint });
+// });
+
+// Delete Appointments IN USER MODEL TEST
+// router.delete('/delete-user-appoint/:idUser/:idAppoint', async (req, res) => {
+//   const idUser = req.params.idUser;
+//   const user = await UserModel.findOne({ _id: idUser });
+//   const appoints = user.appointments;
+
+//   const removedAppoint = await appoints.remove({
+//     _id: req.params.idAppoint,
+//   });
+//   await user.save();
+
+//   res.json({ removedAppoint });
+// });
+
 /* route stripe */
 
 /* route à l'entrée de la page 'communiquer avec mon coiffeur' accessible juste après la validation ET depuis la page rdv à venir, pensez à ajouter un bouton ignorer */
@@ -164,41 +203,38 @@ router.get('/myProfile/:token', async function (req, res, next) {
 
 /* route en post depuis le profil : un bouton sur chaque rdv passés, ouvre un overlay avec un input pour le commentaire, un input pour la note */
 router.put('/addcomment', async function (req, res, next) {
-
   var shop = await ShopModel.findById(req.body.shop_id);
 
   var newComment = new CommentModel({
     comment: req.body.comment,
     rating: +req.body.rating,
     commentDate: new Date(),
-  })
+  });
 
   var saveComment = await newComment.save();
 
   await UserModel.updateOne(
-    {token : req.body.token},
-    {$push: {comments: saveComment._id}}
-  )
-  
-  await ShopModel.updateOne(
-    {_id: req.body.shop_id},
-    {$push: {comments: saveComment._id}}
-  )
-
-  var newRating = (+req.body.rating + (shop.rating*shop.comments.length))/(shop.comments.length+1); 
+    { token: req.body.token },
+    { $push: { comments: saveComment._id } }
+  );
 
   await ShopModel.updateOne(
-    {_id: req.body.shop_id},
-    {rating: newRating}
-  )
-  
+    { _id: req.body.shop_id },
+    { $push: { comments: saveComment._id } }
+  );
+
+  var newRating =
+    (+req.body.rating + shop.rating * shop.comments.length) /
+    (shop.comments.length + 1);
+
+  await ShopModel.updateOne({ _id: req.body.shop_id }, { rating: newRating });
+
   await AppointmentModel.updateOne(
-    {_id: req.body.appointmentId},
-    {commentExists: true}
-  )
+    { _id: req.body.appointmentId },
+    { commentExists: true }
+  );
 
-  res.json({ result: true, comment : saveComment })
-
+  res.json({ result: true, comment: saveComment });
 });
 
 module.exports = router;
