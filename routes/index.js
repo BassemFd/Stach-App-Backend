@@ -219,7 +219,7 @@ router.post('/addShop', async function (req, res, next) {
     shopFeatures: [
       req.body.shopFeatures1,
       req.body.shopFeatures2,
-      // req.body.shopFeatures3,
+      req.body.shopFeatures3,
       // req.body.shopFeatures4,
     ],
     shopEmployees: [
@@ -253,11 +253,11 @@ router.post('/addShop', async function (req, res, next) {
         price: req.body.offerPrice5,
         duration: req.body.offerDuration5,
       },
-      // {
-      //   type: req.body.offerName6, 
-      //   price: req.body.offerPrice6, 
-      //   duration: req.body.offerDuration6
-      // }
+      {
+        type: req.body.offerName6, 
+        price: req.body.offerPrice6, 
+        duration: req.body.offerDuration6
+      }
     ],
     packages: [
       {
@@ -266,12 +266,12 @@ router.post('/addShop', async function (req, res, next) {
         duration: req.body.packageDuration1,
         description: req.body.packageDescription1,
       },
-      // {
-      //   type: req.body.packageName2,
-      //   price: req.body.packagePrice2,
-      //   duration: req.body.packageDuration2,
-      //   description: req.body.packageDescription2,
-      // },
+      {
+        type: req.body.packageName2,
+        price: req.body.packagePrice2,
+        duration: req.body.packageDuration2,
+        description: req.body.packageDescription2,
+      },
       // {
       //   type: req.body.packageName3, 
       //   price: req.body.packagePrice3, 
@@ -280,11 +280,11 @@ router.post('/addShop', async function (req, res, next) {
       // }
     ],
     schedule: [
-      {
-        dayOfTheWeek: 'Monday', 
-        openingHours: req.body.openingHoursMonday, 
-        closingHours: req.body.closingHoursMonday
-      },
+      // {
+      //   dayOfTheWeek: 'Monday', 
+      //   openingHours: req.body.openingHoursMonday, 
+      //   closingHours: req.body.closingHoursMonday
+      // },
       {
         dayOfTheWeek: 'Tuesday',
         openingHours: req.body.openingHoursTuesday,
