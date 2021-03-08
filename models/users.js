@@ -19,6 +19,7 @@ var userSchema = mongoose.Schema(
     appointments: [
       { type: mongoose.Schema.Types.ObjectId, ref: 'appointments' },
     ],
+    gender: String,
   },
   { timestamps: true }
 );
