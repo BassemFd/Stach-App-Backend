@@ -15,7 +15,7 @@ utiliser pour page accueil, filtres salon (map et liste)
 --> reducer des données du filtre entre la liste, la map et le detail coiffeur qui servira à remplir le fetch à la bdd
 */
 router.post('/search', async function (req, res, next) {
-  console.log('req.body.data', req.body.data);
+  // console.log('req.body.data', req.body.data);
 
   let type = { $exists: true };
   let latitude = { $exists: true };
@@ -198,7 +198,7 @@ router.post('/search', async function (req, res, next) {
     }
   }
 
-  console.log('filtre par appointments et date', filteredDistanceShopsList);
+  // console.log('filtre par appointments et date', filteredDistanceShopsList);
   res.json({ filteredDistanceShopsList });
 });
 
@@ -374,10 +374,51 @@ router.get('/shop/:id', async function (req, res, next) {
     .populate('appointments')
     .populate('comments')
     .exec();
-  console.log(shop);
+  // console.log(shop);
 
   res.json({ result: true, shop: shop });
 });
+
+
+router.get('/favorites', async function (req, res, next){
+  
+  var favoriteShops = await UserModel.findOne({token: req.query.token})
+// console.log(favoriteShops.favorites)
+var listID = []
+favoriteShops.favorites.forEach((item)=>{
+  listID.push(item)
+})
+
+// console.log(listID)
+// db.collection.find( { _id : { $in : [ObjectId('1'),ObjectId('2')] } } );
+ var foundFavorites =  await ShopModel.find({_id: { $in: listID} }).populate('comments').populate('appointments').exec()
+// console.log("FOUND", foundFavorites)
+  res.json({result: true, favoriteShops: foundFavorites})
+})
+
+router.post('/favorites', async function (req, res, next){
+  
+    await UserModel.updateMany(
+    {token : req.body.token},
+    {$push : {favorites: req.body.id}}
+    )
+    
+
+    res.json({result: true})
+
+})
+
+
+router.post('/deleteFavorites', async function (req, res, next){
+  
+  await UserModel.updateMany(
+  {token : req.body.token},
+  {$pull : {favorites: req.body.id}}
+  )
+
+  res.json({result: true})
+
+})
 
 module.exports = router;
 
