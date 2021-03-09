@@ -110,43 +110,43 @@ router.post('/signIn', async function (req, res, next) {
 });
 
 // Get shops by id TEST
-// router.get('/shopsById/:id', async (req, res) => {
-//   try {
-//     const shops = await ShopModel.findById(req.params.id);
-//     res.json({ result: true, shops });
-//   } catch (error) {
-//     console.log(error);
-//     res.json({ result: false, error });
-//   }
-// });
+router.get('/shopsById/:id', async (req, res) => {
+  try {
+    const shops = await ShopModel.findById(req.params.id);
+    res.json({ result: true, shops });
+  } catch (error) {
+    console.log(error);
+    res.json({ result: false, error });
+  }
+});
 
 // Delete Appointments IN SHOP MODEL TEST
-// router.delete('/delete-appoint/:idShop/:idAppoint', async (req, res) => {
-//   const idShop = req.params.idShop;
-//   const shop = await ShopModel.findOne({ _id: idShop });
-//   const appoints = shop.appointments;
+router.delete('/delete-appoint/:idShop/:idAppoint', async (req, res) => {
+  const idShop = req.params.idShop;
+  const shop = await ShopModel.findOne({ _id: idShop });
+  const appoints = shop.appointments;
 
-//   const removedAppoint = await appoints.remove({
-//     _id: req.params.idAppoint,
-//   });
-//   await shop.save();
+  const removedAppoint = await appoints.remove({
+    _id: req.params.idAppoint,
+  });
+  await shop.save();
 
-//   res.json({ removedAppoint });
-// });
+  res.json({ removedAppoint });
+});
 
 // Delete Appointments IN USER MODEL TEST
-// router.delete('/delete-user-appoint/:idUser/:idAppoint', async (req, res) => {
-//   const idUser = req.params.idUser;
-//   const user = await UserModel.findOne({ _id: idUser });
-//   const appoints = user.appointments;
+router.delete('/delete-user-appoint/:idUser/:idAppoint', async (req, res) => {
+  const idUser = req.params.idUser;
+  const user = await UserModel.findOne({ _id: idUser });
+  const appoints = user.appointments;
 
-//   const removedAppoint = await appoints.remove({
-//     _id: req.params.idAppoint,
-//   });
-//   await user.save();
+  const removedAppoint = await appoints.remove({
+    _id: req.params.idAppoint,
+  });
+  await user.save();
 
-//   res.json({ removedAppoint });
-// });
+  res.json({ removedAppoint });
+});
 
 /* route stripe */
 
@@ -193,9 +193,13 @@ router.get('/myProfile/:token', async function (req, res, next) {
       shopsIds.push(appointment.shopId);
     });
 
-    const shops = await ShopModel.find({ _id: { $in: shopsIds } });
+    const shops = [];
+    for (let i = 0; i < shopsIds.length; i++) {
+      const shop = await ShopModel.findById(shopsIds[i]);
+      shops.push(shop);
+    }
 
-    res.send({ result: true, appointments, user, shopsIds, shops });
+    res.json({ result: true, appointments, user, shopsIds, shops });
   } catch (error) {
     res.json({ result: false, error });
   }
