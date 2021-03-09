@@ -359,6 +359,7 @@ router.put('/addPriceFork', async function (req, res, next) {
   -> reducer stockant toutes les infos du rdv choisis (reducer créé au moment de la validation du rdv sur la page détail coiffeur)  
 */
 router.post('/addappointment/:token', async function (req, res, next) {
+  console.log(req.body.loyaltyPoints);
   var newAppointment = new AppointmentModel({
     chosenOffer: req.body.chosenOffer,
     chosenPrice: req.body.chosenPrice,
@@ -380,7 +381,9 @@ router.post('/addappointment/:token', async function (req, res, next) {
 
   await UserModel.updateOne(
     { token: req.params.token },
-    { $push: { appointments: saveAppointment._id } }
+    { $push: { appointments: saveAppointment._id },
+      $inc: {loyaltyPoints: req.body.loyaltyPoints},
+    }
   );
 
   res.json({ result: true });

@@ -20,6 +20,7 @@ var userSchema = mongoose.Schema(
       { type: mongoose.Schema.Types.ObjectId, ref: 'appointments' },
     ],
     gender: String,
+    loyaltyPoints: Number,
   },
   { timestamps: true }
 );

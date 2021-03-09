@@ -52,6 +52,7 @@ router.post('/signUp', async function (req, res, next) {
     favorites: [],
     status: 'customer',
     token: uid2(32),
+    loyaltyPoints: 0,
   });
 
   try {
