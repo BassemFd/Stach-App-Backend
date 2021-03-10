@@ -209,8 +209,8 @@ router.post('/addShop', async function (req, res, next) {
     shopImages: [
       req.body.shopImage1,
       req.body.shopImage2,
-      // req.body.shopImage3,
-      // req.body.shopImage4,
+      req.body.shopImage3,
+      req.body.shopImage4,
     ],
     shopAddress: req.body.shopAddress,
     shopPhone: req.body.shopPhone,
