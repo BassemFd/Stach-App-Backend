@@ -65,7 +65,7 @@ router.post('/signUp', async function (req, res, next) {
   }
 
   // if (user.token != null) {
-  //   // Traitement de la réservation
+  // Traitement de la réservation
   //   res.json({ result: true, token: user.token });
   // } else {
   //   res.json({ result: false });
@@ -191,9 +191,9 @@ router.get('/myProfile/:token', async function (req, res, next) {
     // Get all shopsId by user
     const shopsIds = [];
     appointments.forEach((appointment) => {
-      shopsIds.push(appointment.shopId);
+      shopsIds.push(appointment.shopId);  
     });
-
+//? For EACH ne fonctionne pas avec un await, il faudrait lui rajouter un setTimeout mais du coup on préfère passer avec une boucle for classique
     const shops = [];
     for (let i = 0; i < shopsIds.length; i++) {
       const shop = await ShopModel.findById(shopsIds[i]);
