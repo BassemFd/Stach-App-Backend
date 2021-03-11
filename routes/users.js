@@ -172,6 +172,8 @@ router.get('/myProfile/:token', async function (req, res, next) {
   // rdv futurs : il y a un bouton qui amène vers myDetails
   // rdv passés : il y a un bouton qui amène vers comment
 
+
+  //A priori le populate ne sert plus après changement de méthode
   const tokenUser = req.params.token;
   const user = await UserModel.findOne({ token: tokenUser })
     .populate('appointments')
